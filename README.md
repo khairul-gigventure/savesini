@@ -3,6 +3,8 @@
 > **Multi-User Social Media Knowledge Vault for High-Signal Thinkers & Coaches**  
 > Capture, synthesize, search, and curate high-signal links across **X (Twitter), LinkedIn, Threads, Facebook, and the Web** into a private, cloud-synced, distraction-free repository powered by **Google Firebase**.
 
+[![Live App](https://img.shields.io/badge/Live_App-savesini.ai.studio-09090b?style=for-the-badge&logo=googlechrome&logoColor=white)](https://savesini.ai.studio)
+
 [![React](https://img.shields.io/badge/React-19.0-61DAFB?logo=react&logoColor=black)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Firebase](https://img.shields.io/badge/Firebase-Firestore_%26_Auth-FFCA28?logo=firebase&logoColor=black)](https://firebase.google.com/)
@@ -10,6 +12,11 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4.0-18181b?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![PWA Ready](https://img.shields.io/badge/PWA-Installable-18181b?logo=pwa&logoColor=white)](https://web.dev/progressive-web-apps/)
 [![License](https://img.shields.io/badge/License-MIT-zinc)](LICENSE)
+
+---
+
+> 🚀 **Live Production App:** [**https://savesini.ai.studio**](https://savesini.ai.studio)  
+> Test the app directly in your browser with 1-click Google Sign-In, real-time Firebase sync, and offline PWA support.
 
 ---
 
@@ -171,7 +178,21 @@ savesini/
 
 ## 🚀 Getting Started
 
-### Prerequisites
+### 🌐 Live Access & Instant Testing (No Setup Required)
+
+You can immediately try and test the live application without running any local code:
+
+👉 **[https://savesini.ai.studio](https://savesini.ai.studio)**
+
+- **1-Click Google Sign-In:** Authenticate instantly to access your personal cloud vault.
+- **Pre-Seeded Frameworks:** New accounts automatically load sample high-signal coaching links in their Firebase vault.
+- **Installable PWA:** Open the URL on your mobile phone (Safari > *Add to Home Screen* or Chrome > *Install App*) to test it as a standalone app.
+
+---
+
+### Local Development Setup
+
+#### Prerequisites
 - [Node.js](https://nodejs.org/) v18.0 or higher
 - `npm` (or `pnpm` / `bun`)
 
