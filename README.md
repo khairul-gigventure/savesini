@@ -3,19 +3,22 @@
 > **Aplikasi pintar untuk simpan, susun nota, dan cari balik post bermanfaat dari X (Twitter), LinkedIn, Threads, Facebook, dan Web — tanpa pening kepala.**
 
 [![Cuba Aplikasi Live](https://img.shields.io/badge/Cuba_Live-savesini.ai.studio-09090b?style=for-the-badge&logo=googlechrome&logoColor=white)](https://savesini.ai.studio)
+[![Google AI Studio](https://img.shields.io/badge/Google_AI_Studio-Buka_App-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://ai.studio/apps/2b6675ae-b6d8-42f1-b85c-bd27ff7f279c)
 [![Status Sistem](https://img.shields.io/badge/Database-Firebase_Cloud-FFCA28?style=flat-square&logo=firebase&logoColor=black)](https://firebase.google.com/)
 [![PWA Ready](https://img.shields.io/badge/Aplikasi_Telefon-Boleh_Install_(PWA)-18181b?style=flat-square&logo=pwa&logoColor=white)](https://web.dev/progressive-web-apps/)
 [![Lesen](https://img.shields.io/badge/Lesen-Percuma_%26_Open_Source-zinc?style=flat-square)](LICENSE)
 
 ---
 
-## 🌐 Cuba Terus Di Browser Anda (Percuma)
+## 🌐 Akses & Cuba Terus Di Browser Anda (Percuma)
 
-Tak perlu pasang apa-apa perisian di komputer. Anda boleh terus buka dan cuba aplikasi ini sekarang:
+Tak perlu pasang apa-apa perisian di komputer. Anda boleh terus buka, tengok, dan cuba aplikasi ini sekarang melalui mana-mana pautan di bawah:
 
-👉 **[https://savesini.ai.studio](https://savesini.ai.studio)**
+* 🚀 **Pautan Aplikasi Web:** [**https://savesini.ai.studio**](https://savesini.ai.studio)
+* ⚡ **Pautan Google AI Studio:** [**https://ai.studio/apps/2b6675ae-b6d8-42f1-b85c-bd27ff7f279c**](https://ai.studio/apps/2b6675ae-b6d8-42f1-b85c-bd27ff7f279c)
 
-* **1-Klik Log Masuk:** Boleh terus masuk guna akaun Google atau daftar guna emel.
+### Kelebihan Akses Terus:
+* **1-Klik Log Masuk:** Boleh terus masuk guna akaun Google atau daftar guna emel peribadi.
 * **Data Siap Sedia:** Sebaik sahaja daftar, akaun anda automatik dibekalkan dengan contoh link & folder menarik untuk dicuba.
 * **Boleh Jadi App Telefon:** Buka link di telefon (Safari di iPhone atau Chrome di Android), dan tekan *"Add to Home Screen"* untuk jadikan ia aplikasi telefon!
 
