@@ -2,6 +2,7 @@ export type PlatformType = 'x' | 'threads' | 'linkedin' | 'facebook' | 'web';
 
 export interface SocialLink {
   id: string;
+  userId?: string;
   url: string;
   platform: PlatformType;
   title: string;
@@ -28,6 +29,7 @@ export interface SocialLink {
 
 export interface CoachingCollection {
   id: string;
+  userId?: string;
   title: string;
   subtitle: string;
   tags: string[];

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { ViewTab, SocialLink, CoachingCollection } from './types';
 import { loadLinks, saveLinks, loadCollections, saveCollections, getStorageStats, exportToCSV } from './utils/storage';
 import { Header } from './components/Header';
@@ -11,14 +11,35 @@ import { ReaderModal } from './components/ReaderModal';
 import { WeeklyDigestModal } from './components/WeeklyDigestModal';
 import { BookmarkletModal } from './components/BookmarkletModal';
 import { Footer } from './components/Footer';
+import { AuthView } from './components/AuthView';
+import {
+  auth,
+  testConnection,
+  signInWithGoogle,
+  signOutUser,
+  saveLinkToFirestore,
+  deleteLinkFromFirestore,
+  saveCollectionToFirestore,
+  deleteCollectionFromFirestore,
+  subscribeToUserVault,
+  seedUserVaultIfEmpty,
+} from './utils/firebase';
+import { onAuthStateChanged, User } from 'firebase/auth';
+import { Loader2 } from 'lucide-react';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<ViewTab>('quick-capture');
-  const [links, setLinks] = useState<SocialLink[]>(() => loadLinks());
-  const [collections, setCollections] = useState<CoachingCollection[]>(() => loadCollections());
+  const [links, setLinks] = useState<SocialLink[]>([]);
+  const [collections, setCollections] = useState<CoachingCollection[]>([]);
   const [toast, setToast] = useState<ToastState>({ show: false, message: '' });
   const [isBackupModalOpen, setIsBackupModalOpen] = useState(false);
   const [assignModalCollectionId, setAssignModalCollectionId] = useState<string | null>(null);
+
+  // Firebase Auth & Cloud Sync States
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
+  const [isGuestMode, setIsGuestMode] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   // New Editorial Modals
   const [selectedReaderLink, setSelectedReaderLink] = useState<SocialLink | null>(null);
@@ -31,6 +52,64 @@ export default function App() {
   const showToast = useCallback((message: string, type: 'success' | 'info' | 'error' = 'success') => {
     setToast({ show: true, message, type });
   }, []);
+
+  // 1. Initial Connection Test
+  useEffect(() => {
+    testConnection();
+  }, []);
+
+  // 2. Firebase Auth & Real-Time Sync Subscription
+  useEffect(() => {
+    let unsubscribeVault: (() => void) | null = null;
+
+    const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
+      setCurrentUser(user);
+      setIsAuthLoading(false);
+
+      if (user) {
+        setIsGuestMode(false);
+        setIsSyncing(true);
+        try {
+          // Check if this user's Firebase vault needs initial links and collections
+          await seedUserVaultIfEmpty(user.uid);
+
+          // Subscribe to real-time updates from Firestore for this user
+          unsubscribeVault = subscribeToUserVault(
+            user.uid,
+            (cloudLinks) => {
+              setLinks(cloudLinks);
+              saveLinks(cloudLinks);
+              setStorageUsage(getStorageStats());
+              setIsSyncing(false);
+            },
+            (cloudCols) => {
+              setCollections(cloudCols);
+              saveCollections(cloudCols);
+              setStorageUsage(getStorageStats());
+              setIsSyncing(false);
+            }
+          );
+
+          showToast(`Welcome back, ${user.displayName || user.email}! Vault connected to Firebase.`);
+        } catch (err) {
+          console.error('Initial vault sync error', err);
+          setIsSyncing(false);
+        }
+      } else {
+        // If not logged in and not in guest mode, clear active memory links
+        if (unsubscribeVault) {
+          unsubscribeVault();
+          unsubscribeVault = null;
+        }
+        setIsSyncing(false);
+      }
+    });
+
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeVault) unsubscribeVault();
+    };
+  }, [showToast]);
 
   // Handle incoming share target or bookmarklet params (?url=...&title=...&text=...)
   useEffect(() => {
@@ -67,14 +146,23 @@ export default function App() {
       const newLink: SocialLink = {
         ...newLinkData,
         id: `link-${Date.now()}`,
+        userId: currentUser?.uid,
         dateAdded: new Date().toISOString(),
         displayTimeAgo: 'Just now',
       };
       const updated = [newLink, ...links];
       handleSaveLinks(updated);
-      showToast(`Bookmark saved: "${newLink.title.slice(0, 30)}..."`);
+
+      // Save directly to Firebase Firestore
+      if (currentUser) {
+        saveLinkToFirestore(currentUser.uid, newLink).catch((err) =>
+          console.error('Failed to sync link to Firebase', err)
+        );
+      }
+
+      showToast(`Bookmark saved to Firebase: "${newLink.title.slice(0, 30)}..."`);
     },
-    [links, handleSaveLinks, showToast]
+    [links, currentUser, handleSaveLinks, showToast]
   );
 
   // Delete link handler
@@ -95,9 +183,16 @@ export default function App() {
         setSelectedReaderLink(null);
       }
 
-      showToast(`Link "${target?.title.slice(0, 24) || 'item'}" was deleted.`, 'info');
+      // Delete directly from Firebase Firestore
+      if (currentUser) {
+        deleteLinkFromFirestore(currentUser.uid, id).catch((err) =>
+          console.error('Failed to delete link from Firebase', err)
+        );
+      }
+
+      showToast(`Link "${target?.title.slice(0, 24) || 'item'}" deleted from Firebase.`, 'info');
     },
-    [links, collections, selectedReaderLink, handleSaveLinks, handleSaveCollections, showToast]
+    [links, collections, selectedReaderLink, currentUser, handleSaveLinks, handleSaveCollections, showToast]
   );
 
   // Copy link handler
@@ -123,7 +218,17 @@ export default function App() {
       col.id === collectionId ? { ...col, linkIds: updatedLinkIds } : col
     );
     handleSaveCollections(updated);
-    showToast('Collection links updated.');
+
+    if (currentUser) {
+      const targetCol = updated.find((c) => c.id === collectionId);
+      if (targetCol) {
+        saveCollectionToFirestore(currentUser.uid, targetCol).catch((err) =>
+          console.error('Failed to update collection in Firebase', err)
+        );
+      }
+    }
+
+    showToast('Collection updated in Firebase.');
   };
 
   const handleShareCollection = (collection: CoachingCollection) => {
@@ -134,12 +239,60 @@ export default function App() {
     showToast(`Collection summary copied to clipboard! (${collection.linkIds.length} links)`);
   };
 
+  // Google Sign In / Sign Out Handlers
+  const handleSignInGoogle = async () => {
+    try {
+      await signInWithGoogle();
+    } catch (err: any) {
+      showToast('Sign in cancelled or failed.', 'error');
+    }
+  };
+
+  const handleSignOutUser = async () => {
+    try {
+      await signOutUser();
+      setLinks([]);
+      setCollections([]);
+      setIsGuestMode(false);
+      showToast('Signed out of Firebase account.', 'info');
+    } catch (err) {
+      showToast('Failed to sign out.', 'error');
+    }
+  };
+
   // Expose global helpers to window for evaluation & script parity
   useEffect(() => {
     (window as any).triggerExportCSV = handleExportCSV;
     (window as any).copyLink = handleCopyLink;
     (window as any).showToast = showToast;
   }, [handleExportCSV, handleCopyLink, showToast]);
+
+  // 3. Initial Auth Loading State
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen bg-[#fafafa] flex flex-col items-center justify-center font-['Inter'] space-y-3">
+        <Loader2 className="w-6 h-6 animate-spin text-zinc-900" />
+        <span className="text-xs font-semibold text-zinc-500">Connecting to SaveSini Firebase...</span>
+      </div>
+    );
+  }
+
+  // 4. If unauthenticated and not in guest preview mode: Show Auth Gateway (Sign In / Sign Up)
+  if (!currentUser && !isGuestMode) {
+    return (
+      <>
+        <Toast toast={toast} onClose={() => setToast({ show: false, message: '' })} />
+        <AuthView
+          onSuccess={() => {}}
+          onContinueAsGuest={() => {
+            setIsGuestMode(true);
+            setLinks(loadLinks());
+            setCollections(loadCollections());
+          }}
+        />
+      </>
+    );
+  }
 
   const activeCollectionForModal = collections.find((c) => c.id === assignModalCollectionId) || null;
 
@@ -148,7 +301,7 @@ export default function App() {
       {/* Toast Notification */}
       <Toast toast={toast} onClose={() => setToast({ show: false, message: '' })} />
 
-      {/* Main Header */}
+      {/* Main Header with Firebase Auth */}
       <Header
         activeTab={activeTab}
         onTabChange={setActiveTab}
@@ -156,6 +309,10 @@ export default function App() {
         onOpenBackupModal={() => setIsBackupModalOpen(true)}
         onOpenWeeklyDigest={() => setIsWeeklyDigestOpen(true)}
         onOpenBookmarklet={() => setIsBookmarkletOpen(true)}
+        currentUser={currentUser}
+        isSyncing={isSyncing}
+        onSignInWithGoogle={handleSignInGoogle}
+        onSignOut={handleSignOutUser}
       />
 
       {/* Main Views Container */}
@@ -225,7 +382,10 @@ export default function App() {
         onDataRestored={(newLinks, newCollections) => {
           handleSaveLinks(newLinks);
           handleSaveCollections(newCollections);
-          showToast('Data berjaya dipulihkan!');
+          if (currentUser) {
+            seedUserVaultIfEmpty(currentUser.uid);
+          }
+          showToast('Data restored successfully!');
         }}
       />
 

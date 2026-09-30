@@ -21,6 +21,7 @@ As a coach, consultant, founder, or researcher, you encounter invaluable framewo
 
 **SaveSini** solves this through a **Local-First, Distraction-Free Minimalist Architecture**:
 - 🔒 **100% Client-Side & Private:** All bookmarks, notes, and collections live securely in your browser's persistent storage. Zero external server dependencies or tracking.
+- ☁️ **Seamless Firebase Cloud Sync:** Optional 1-click Google Sign-In with Firebase Firestore for cross-device synchronization and automatic cloud backups.
 - ⚡ **Zero Latency:** Instant startup, sub-millisecond real-time search, and smooth keyboard navigation.
 - 📶 **Offline Resilience:** Access, read, and manage your intellectual archive without an active internet connection.
 
