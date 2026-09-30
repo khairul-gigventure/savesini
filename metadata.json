@@ -1,0 +1,8 @@
+{
+  "name": "Remix SaveSini - Social Intel Vault",
+  "description": "Personal Social Media Vault for Coach Khairul. Instantly capture, synthesize, search, and curate high-signal links across X, LinkedIn, Threads, and Facebook.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

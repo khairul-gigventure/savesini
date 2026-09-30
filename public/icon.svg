@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="savesini-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#008378" />
+      <stop offset="50%" stop-color="#00685f" />
+      <stop offset="100%" stop-color="#005eb5" />
+    </linearGradient>
+  </defs>
+  <!-- Background squircle -->
+  <rect width="512" height="512" rx="140" fill="url(#savesini-grad)" />
+  <!-- White bookmark banner -->
+  <path d="M148 148 C148 128 164 112 184 112 L328 112 C348 112 364 128 364 148 L364 400 L256 324 L148 400 Z" fill="#ffffff" />
+  <!-- Teal curl/ribbon inside bookmark -->
+  <path d="M256 180 C225 180 200 205 200 236 C200 267 225 292 256 292 C275 292 291 282 300 268 C304 262 301 254 294 254 L260 254 C254 254 250 258 248 263 C245 268 238 272 230 272 C217 272 206 261 206 248 C206 235 217 224 230 224 C243 224 254 235 254 248 C254 254 258 258 264 258 L284 258 C290 258 294 254 294 248 C294 210 263 180 256 180 Z" fill="#00685f" />
+</svg>
