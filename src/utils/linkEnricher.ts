@@ -21,11 +21,11 @@ export function enrichUrlMetadata(rawUrl: string): EnrichedMetadata {
   const handle = extractHandleFromUrl(cleanUrl, platform);
 
   // Default fallback values
-  let title = 'Curated Social Media Resource';
-  let notes = 'Key takeaways and strategic execution notes recorded in personal vault.';
-  let tags: string[] = ['#Coaching'];
+  let title = 'Link tersimpan';
+  let notes = '';
+  let tags: string[] = [];
   let originalText = '';
-  let readTime = '2 min read';
+  let readTime = '';
 
   try {
     const urlObj = new URL(cleanUrl.startsWith('http') ? cleanUrl : `https://${cleanUrl}`);
@@ -35,29 +35,14 @@ export function enrichUrlMetadata(rawUrl: string): EnrichedMetadata {
     if (platform === 'x') {
       const username = pathParts[0] || handle.replace('@', '');
       const statusId = pathParts[2] || '';
-
-      if (cleanUrl.toLowerCase().includes('dankoe')) {
-        title = 'The Solopreneur Leverage & Scaling Architecture';
-        notes = 'Asynchronous onboarding and specialized knowledge leverage to decouple time from earnings.';
-        tags = ['#Frameworks', '#Coaching', '#Business'];
-        originalText = 'The modern one-person business isn’t about trading time for money. It’s about building leverage through code, media, and specialized knowledge.';
-      } else if (cleanUrl.toLowerCase().includes('hormozi')) {
-        title = 'Grand Slam Offer Equation: Value Maximization Model';
-        notes = 'Eliminate 10x customer sacrifice rather than adding more checklists. Dream outcome clarity.';
-        tags = ['#Pricing', '#Coaching', '#Business'];
-        originalText = 'Make offers so good people feel stupid saying no. Maximize the dream outcome and perceived likelihood of achievement while minimizing time delay and effort.';
-      } else {
-        title = `Strategic Insight by @${username}${statusId ? ` (Ref #${statusId.slice(-4)})` : ''}`;
-        notes = `High-signal breakdown from @${username} on X platform.`;
-        tags = ['#Coaching', '#Marketing'];
-        originalText = 'Actionable insight on high-performance execution, systems design, and daily discipline.';
-      }
+      title = `Post oleh @${username}${statusId ? ` (#${statusId.slice(-4)})` : ''}`;
+      notes = '';
+      tags = ['#X'];
     } else if (platform === 'threads') {
       const username = pathParts[0]?.replace('@', '') || 'creator';
-      title = `Audience Growth & Reflection by @${username}`;
-      notes = 'Nuanced community engagement strategy and authentic audience compounding.';
-      tags = ['#ThreadsStrategy', '#Branding'];
-      originalText = 'Consistency builds enduring trust. Don’t chase viral surges; cultivate deep loyalty with the right 100 leaders.';
+      title = `Post Threads oleh @${username}`;
+      notes = '';
+      tags = ['#Threads'];
     } else if (platform === 'linkedin') {
       const postSlug = pathParts[pathParts.length - 1] || '';
       const readableSlug = decodeURIComponent(postSlug)
@@ -67,15 +52,13 @@ export function enrichUrlMetadata(rawUrl: string): EnrichedMetadata {
 
       title = readableSlug && readableSlug.length > 5
         ? readableSlug.charAt(0).toUpperCase() + readableSlug.slice(1)
-        : 'Executive Performance & Leadership Case Study';
-      notes = 'Strategic leadership model and high-velocity decision frameworks.';
-      tags = ['#Leadership', '#Productivity', '#Coaching'];
-      originalText = 'Sustainable peak performance starts with psychological safety, clear decision rights, and structured sleep recovery.';
+        : `Post LinkedIn oleh ${handle}`;
+      notes = '';
+      tags = ['#LinkedIn'];
     } else if (platform === 'facebook') {
-      title = 'Mastermind & Community Retention Architecture';
-      notes = 'Frameworks for peer accountability hotseats and member engagement.';
-      tags = ['#Community', '#Marketing'];
-      originalText = 'Active masterminds thrive when members have safe spaces to share genuine roadblocks with structured feedback timers.';
+      title = `Post Facebook (${handle})`;
+      notes = '';
+      tags = ['#Facebook'];
     } else if (platform === 'youtube') {
       title = 'Video YouTube';
       notes = '';
@@ -92,9 +75,9 @@ export function enrichUrlMetadata(rawUrl: string): EnrichedMetadata {
       readTime = '';
     } else {
       const domain = urlObj.hostname.replace('www.', '');
-      title = `Reference Guide (${domain})`;
-      notes = `Curated resource indexed from ${domain}.`;
-      tags = ['#Business', '#Coaching'];
+      title = `Link dari ${domain}`;
+      notes = '';
+      tags = [];
     }
   } catch {
     // Keep defaults
