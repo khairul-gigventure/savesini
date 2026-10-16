@@ -57,7 +57,7 @@ service cloud.firestore {
         && data.userId == request.auth.uid
         && isValidId(data.id)
         && data.url is string && data.url.size() > 0 && data.url.size() <= 1024
-        && data.platform in ['x', 'threads', 'linkedin', 'facebook', 'web']
+        && data.platform in ['x', 'threads', 'linkedin', 'facebook', 'youtube', 'medium', 'web']
         && data.title is string && data.title.size() > 0 && data.title.size() <= 300
         && (!('notes' in data) || (data.notes is string && data.notes.size() <= 3000))
         && (!('tags' in data) || (data.tags is list && data.tags.size() <= 30))

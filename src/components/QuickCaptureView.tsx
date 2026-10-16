@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { SocialLink, PlatformType } from '../types';
 import { detectPlatform, DEMO_URLS, PLATFORM_CONFIGS, extractHandleFromUrl } from '../utils/platformDetect';
-import { enrichUrlMetadata } from '../utils/linkEnricher';
+import { enrichUrlMetadata, fetchRealMetadata } from '../utils/linkEnricher';
 import { useVoiceInput } from '../hooks/useVoiceInput';
 import confetti from 'canvas-confetti';
 import {
@@ -49,6 +49,7 @@ export const QuickCaptureView: React.FC<QuickCaptureViewProps> = ({
   const [customTagInput, setCustomTagInput] = useState('');
   const [showCustomInput, setShowCustomInput] = useState(false);
   const [isExtracting, setIsExtracting] = useState(false);
+  const [fetchedAuthor, setFetchedAuthor] = useState<{ author: string; authorHandle: string } | null>(null);
   const [extractedSuccess, setExtractedSuccess] = useState(false);
 
   // Voice-to-text integration for notes
@@ -96,12 +97,14 @@ export const QuickCaptureView: React.FC<QuickCaptureViewProps> = ({
   });
 
   // Smart Auto-Enrichment Handler
-  const handleAutoEnrich = () => {
+  const handleAutoEnrich = async () => {
     if (!url.trim()) return;
     setIsExtracting(true);
+    const real = await fetchRealMetadata(url);
+    setFetchedAuthor(real?.author ? { author: real.author, authorHandle: real.authorHandle || real.author } : null);
     setTimeout(() => {
       const enriched = enrichUrlMetadata(url);
-      setTitle(enriched.title);
+      setTitle(real?.title || enriched.title);
       if (!notes.trim()) setNotes(enriched.notes);
       if (enriched.originalText && !snapshotText.trim()) setSnapshotText(enriched.originalText);
       setSelectedTags(enriched.tags);
@@ -188,7 +191,7 @@ export const QuickCaptureView: React.FC<QuickCaptureViewProps> = ({
     setTitleError(false);
 
     const platform = detectPlatform(url || 'https://x.com');
-    const authorHandle = extractHandleFromUrl(url, platform);
+    const authorHandle = fetchedAuthor?.authorHandle || extractHandleFromUrl(url, platform);
 
     onSaveLink({
       url: url.trim() || 'https://x.com',
@@ -197,7 +200,7 @@ export const QuickCaptureView: React.FC<QuickCaptureViewProps> = ({
       notes: notes.trim() || 'No specific notes recorded.',
       originalText: snapshotText.trim() || undefined,
       tags: selectedTags.length > 0 ? selectedTags : ['#Coaching'],
-      author: authorHandle.replace('@', ''),
+      author: fetchedAuthor?.author || authorHandle.replace('@', ''),
       authorHandle,
       verified: true,
       displayTimeAgo: 'Just now',

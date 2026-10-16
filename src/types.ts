@@ -1,4 +1,4 @@
-export type PlatformType = 'x' | 'threads' | 'linkedin' | 'facebook' | 'web';
+export type PlatformType = 'x' | 'threads' | 'linkedin' | 'facebook' | 'youtube' | 'medium' | 'web';
 
 export interface SocialLink {
   id: string;

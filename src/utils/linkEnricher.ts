@@ -1,5 +1,5 @@
 import { SocialLink, PlatformType } from '../types';
-import { detectPlatform, extractHandleFromUrl } from './platformDetect';
+import { detectPlatform, extractHandleFromUrl, isYouTubeUrl } from './platformDetect';
 
 export interface EnrichedMetadata {
   title: string;
@@ -76,6 +76,20 @@ export function enrichUrlMetadata(rawUrl: string): EnrichedMetadata {
       notes = 'Frameworks for peer accountability hotseats and member engagement.';
       tags = ['#Community', '#Marketing'];
       originalText = 'Active masterminds thrive when members have safe spaces to share genuine roadblocks with structured feedback timers.';
+    } else if (platform === 'youtube') {
+      title = 'Video YouTube';
+      notes = '';
+      tags = ['#Video'];
+    } else if (platform === 'medium') {
+      // Medium blocks browser requests, so the only honest source is the URL slug.
+      const slug = decodeURIComponent(pathParts[pathParts.length - 1] || '')
+        .replace(/-[0-9a-f]{10,14}$/i, '')
+        .replace(/[-_]+/g, ' ')
+        .trim();
+      title = slug.length > 3 ? slug.charAt(0).toUpperCase() + slug.slice(1) : 'Artikel Medium';
+      notes = '';
+      tags = ['#Artikel'];
+      readTime = '';
     } else {
       const domain = urlObj.hostname.replace('www.', '');
       title = `Reference Guide (${domain})`;
@@ -95,6 +109,32 @@ export function enrichUrlMetadata(rawUrl: string): EnrichedMetadata {
     originalText,
     readTime,
   };
+}
+
+/**
+ * Fetches real metadata where a public CORS-enabled endpoint exists (YouTube oEmbed).
+ * Returns null on any failure so callers keep the URL-derived values.
+ */
+export async function fetchRealMetadata(
+  rawUrl: string
+): Promise<Partial<Pick<EnrichedMetadata, 'title' | 'author' | 'authorHandle'>> | null> {
+  const url = rawUrl.trim();
+  if (!isYouTubeUrl(url)) return null;
+  try {
+    const res = await fetch(
+      `https://www.youtube.com/oembed?format=json&url=${encodeURIComponent(url)}`
+    );
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (typeof data.title !== 'string') return null;
+    const channel = typeof data.author_name === 'string' ? data.author_name : '';
+    const handle = typeof data.author_url === 'string'
+      ? (data.author_url.match(/youtube\.com\/(@[^/?#]+)/i)?.[1] ?? channel)
+      : channel;
+    return { title: data.title, author: channel, authorHandle: handle || channel };
+  } catch {
+    return null;
+  }
 }
 
 /**

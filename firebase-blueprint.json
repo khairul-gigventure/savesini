@@ -53,7 +53,7 @@
         },
         "platform": {
           "type": "string",
-          "enum": ["x", "threads", "linkedin", "facebook", "web"],
+          "enum": ["x", "threads", "linkedin", "facebook", "youtube", "medium", "web"],
           "description": "Social platform type"
         },
         "title": {

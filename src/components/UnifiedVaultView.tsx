@@ -118,7 +118,7 @@ export const UnifiedVaultView: React.FC<UnifiedVaultViewProps> = ({
   }, [links]);
 
   const platformCounts = useMemo(() => {
-    const counts = { all: links.length, facebook: 0, threads: 0, x: 0, linkedin: 0, web: 0 };
+    const counts = { all: links.length, facebook: 0, threads: 0, x: 0, linkedin: 0, youtube: 0, medium: 0, web: 0 };
     links.forEach((l) => {
       if (counts[l.platform] !== undefined) {
         counts[l.platform]++;
@@ -724,6 +724,34 @@ export const UnifiedVaultView: React.FC<UnifiedVaultViewProps> = ({
               <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
               <span>Facebook</span>
               <span className="text-zinc-500 text-[10px] font-medium">{platformCounts.facebook}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActivePlatform('youtube')}
+              className={`px-3 py-1 rounded-full text-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer ${
+                activePlatform === 'youtube'
+                  ? 'bg-zinc-900 text-white font-semibold shadow-xs'
+                  : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200'
+              }`}
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-red-600"></span>
+              <span>YouTube</span>
+              <span className="text-zinc-500 text-[10px] font-medium">{platformCounts.youtube}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActivePlatform('medium')}
+              className={`px-3 py-1 rounded-full text-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer ${
+                activePlatform === 'medium'
+                  ? 'bg-zinc-900 text-white font-semibold shadow-xs'
+                  : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200'
+              }`}
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-zinc-800"></span>
+              <span>Medium</span>
+              <span className="text-zinc-500 text-[10px] font-medium">{platformCounts.medium}</span>
             </button>
           </div>
 

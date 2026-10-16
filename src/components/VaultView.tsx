@@ -57,7 +57,7 @@ export const VaultView: React.FC<VaultViewProps> = ({
   }, [links]);
 
   const platformCounts = useMemo(() => {
-    const counts = { all: links.length, facebook: 0, threads: 0, x: 0, linkedin: 0, web: 0 };
+    const counts = { all: links.length, facebook: 0, threads: 0, x: 0, linkedin: 0, youtube: 0, medium: 0, web: 0 };
     links.forEach((l) => {
       if (counts[l.platform] !== undefined) {
         counts[l.platform]++;

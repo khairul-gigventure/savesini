@@ -62,6 +62,30 @@ export const PLATFORM_CONFIGS: Record<PlatformType, PlatformConfig> = {
     regexPattern: /^(https?:\/\/)?([a-zA-Z0-9-]+\.)?(facebook\.com|fb\.com|fb\.watch)\/.+/i,
     domainSample: 'facebook.com/groups/...',
   },
+  youtube: {
+    id: 'youtube',
+    name: 'YouTube',
+    badgeName: 'YouTube',
+    brandColor: '#FF0000',
+    bgColor: 'bg-[#FF0000] text-white',
+    textColor: 'text-[#FF0000]',
+    symbol: '▶',
+    iconName: 'play_circle',
+    regexPattern: /^(https?:\/\/)?([a-zA-Z0-9-]+\.)?(youtube\.com|youtu\.be)\/.+/i,
+    domainSample: 'youtube.com/watch?v=...',
+  },
+  medium: {
+    id: 'medium',
+    name: 'Medium',
+    badgeName: 'Medium',
+    brandColor: '#12100E',
+    bgColor: 'bg-[#12100E] text-white',
+    textColor: 'text-[#12100E]',
+    symbol: 'M',
+    iconName: 'article',
+    regexPattern: /^(https?:\/\/)?([a-zA-Z0-9-]+\.)?medium\.com\/.+/i,
+    domainSample: 'medium.com/@user/artikel',
+  },
   web: {
     id: 'web',
     name: 'Web Link',
@@ -92,7 +116,31 @@ export function detectPlatform(url: string): PlatformType {
   if (clean.includes('facebook.com') || clean.includes('fb.com') || clean.includes('fb.watch')) {
     return 'facebook';
   }
+  if (isYouTubeUrl(clean)) {
+    return 'youtube';
+  }
+  if (isMediumUrl(clean)) {
+    return 'medium';
+  }
   return 'web';
+}
+
+function hostOf(url: string): string {
+  try {
+    return new URL(url.startsWith('http') ? url : `https://${url}`).hostname.replace(/^www\./, '');
+  } catch {
+    return '';
+  }
+}
+
+export function isYouTubeUrl(url: string): boolean {
+  const host = hostOf(url.trim());
+  return host === 'youtu.be' || host === 'youtube.com' || host.endsWith('.youtube.com');
+}
+
+export function isMediumUrl(url: string): boolean {
+  const host = hostOf(url.trim());
+  return host === 'medium.com' || host.endsWith('.medium.com');
 }
 
 export function extractHandleFromUrl(url: string, platform: PlatformType): string {
@@ -113,6 +161,18 @@ export function extractHandleFromUrl(url: string, platform: PlatformType): strin
     if (platform === 'facebook') {
       const match = clean.match(/facebook\.com\/(?:groups\/)?([a-zA-Z0-9_.-]+)/i);
       return match ? `${match[1]}` : 'Facebook Community';
+    }
+    if (platform === 'youtube') {
+      const match = clean.match(/youtube\.com\/(@[a-zA-Z0-9_.-]+)/i);
+      return match ? match[1] : 'YouTube';
+    }
+    if (platform === 'medium') {
+      const user = clean.match(/medium\.com\/(@[a-zA-Z0-9_.-]+)/i);
+      if (user) return user[1];
+      const sub = hostOf(clean).match(/^([a-z0-9-]+)\.medium\.com$/i);
+      if (sub) return sub[1];
+      const pub = clean.match(/medium\.com\/([a-zA-Z0-9_.-]+)\//i);
+      return pub ? pub[1] : 'Medium';
     }
   } catch {
     // fallback
